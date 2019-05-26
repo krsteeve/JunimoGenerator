@@ -1,10 +1,12 @@
+import * as glMatrix from 'gl-matrix'
+
 //
 // initBuffers
 //
 // Initialize the buffers we'll need. For this demo, we just
 // have one object -- a simple two-dimensional square.
 //
-function initBuffers(gl) {
+export function initBuffers(gl) {
 
   // Create a buffer for the square's positions.
 
@@ -70,7 +72,7 @@ function initBuffers(gl) {
 // Initialize a texture and load an image.
 // When the image finished loading copy it into the texture.
 //
-function loadTexture(gl, url) {
+export function loadTexture(gl, url) {
   const texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
 
@@ -124,7 +126,7 @@ function isPowerOf2(value) {
 //
 // Draw the scene.
 //
-function drawScene(gl, programInfo, buffers, texture) {
+export function drawScene(gl, programInfo, buffers, texture) {
   gl.clearColor(1.0, 1.0, 1.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -246,7 +248,7 @@ function drawScene(gl, programInfo, buffers, texture) {
 //
 // Initialize a shader program, so WebGL knows how to draw our data
 //
-function initShaderProgram(gl, vsSource, fsSource) {
+export function initShaderProgram(gl, vsSource, fsSource) {
   const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
   const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
@@ -271,7 +273,7 @@ function initShaderProgram(gl, vsSource, fsSource) {
 // creates a shader of the given type, uploads the source and
 // compiles it.
 //
-function loadShader(gl, type, source) {
+export function loadShader(gl, type, source) {
   const shader = gl.createShader(type);
 
   // Send the source to the shader object
