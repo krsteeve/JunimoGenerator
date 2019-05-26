@@ -1,13 +1,16 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import Canvas from './Canvas';
+import { SketchPicker } from 'react-color'
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <Canvas></Canvas>
+        <div>
+          <Canvas/>
+          <SketchPicker />
+        </div>
       </header>
     </div>
   );

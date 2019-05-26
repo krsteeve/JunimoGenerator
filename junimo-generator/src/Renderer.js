@@ -68,6 +68,57 @@ export function initBuffers(gl) {
   };
 }
 
+export function getTextureShaderProgram(gl) {
+  // Vertex shader program
+      
+  const vsSource = `
+  attribute vec4 aVertexPosition;
+  attribute vec2 aTextureCoord;
+
+  uniform mat4 uModelViewMatrix;
+  uniform mat4 uProjectionMatrix;
+
+  varying highp vec2 vTextureCoord;
+
+  void main(void) {
+    gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+    vTextureCoord = aTextureCoord;
+  }
+  `;
+
+  // Fragment shader program
+
+  const fsSource = `
+    varying highp vec2 vTextureCoord;
+
+    uniform sampler2D uSampler;
+
+    void main(void) {
+      gl_FragColor = texture2D(uSampler, vTextureCoord);
+    }
+  `;
+
+  // Initialize a shader program; this is where all the lighting
+  // for the vertices and so forth is established.
+  const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+
+  // Collect all the info needed to use the shader program.
+  // Look up which attribute our shader program is using
+  // for aVertexPosition and look up uniform locations.
+  return {
+    program: shaderProgram,
+    attribLocations: {
+      vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+      textureCoord: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
+    },
+    uniformLocations: {
+      projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
+      modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+      uSampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
+    },
+  };
+}
+
 //
 // Initialize a texture and load an image.
 // When the image finished loading copy it into the texture.
