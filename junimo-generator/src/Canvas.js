@@ -33,11 +33,11 @@ export default class Canvas extends Component {
         this.buffers = renderer.initBuffers(gl);
       
         this.textures = [
-          {texture: renderer.loadTexture(gl, junimoOutline), tint:{r:0, g:0, b:0, a:1}},
-          {texture: renderer.loadTexture(gl, junimoMain), tint:{r:0, g:0, b:0, a:1}},
-          {texture: renderer.loadTexture(gl, junimoDark), tint:{r:0, g:0, b:0, a:1}},
-          {texture: renderer.loadTexture(gl, junimoLight), tint:{r:0, g:0, b:0, a:1}},
-          {texture: renderer.loadTexture(gl, junimoCheeks), tint:{r:215, g:164, b:166, a:1}},
+          {texture: renderer.loadTexture(gl, junimoOutline, gl.NEAREST), tint:{r:0, g:0, b:0, a:1}, brightness:0},
+          {texture: renderer.loadTexture(gl, junimoMain, gl.NEAREST), tint:{r:0, g:0, b:0, a:1}, brightness:0},
+          {texture: renderer.loadTexture(gl, junimoDark, gl.NEAREST), tint:{r:0, g:0, b:0, a:1}, brightness:-0.5},
+          {texture: renderer.loadTexture(gl, junimoLight, gl.NEAREST), tint:{r:0, g:0, b:0, a:1}, brightness:0.5},
+          {texture: renderer.loadTexture(gl, junimoCheeks, gl.NEAREST), tint:{r:215, g:164, b:166, a:1}, brightness:0},
         ];
 
         this.updateColors();
@@ -54,8 +54,8 @@ export default class Canvas extends Component {
       var color = Color(this.props.tintColor);
 
       this.textures[1].tint = color.object();
-      this.textures[2].tint = color.darken(0.5).rgb().object();
-      this.textures[3].tint = color.lighten(0.5).rgb().object();
+      this.textures[2].tint = color.object();
+      this.textures[3].tint = color.object();
     }
  
     renderGlScene(gl, programs) {
@@ -63,7 +63,7 @@ export default class Canvas extends Component {
       renderer.drawStart(gl);
 
       this.textures.forEach(function(texture, index) {
-        renderer.drawScene(gl, this.programInfo, this.buffers, texture.texture, texture.tint);
+        renderer.drawScene(gl, this.programInfo, this.buffers, texture.texture, texture.tint, null, texture.brightness);
       }, this);
 
       this.rafHandle = raf(this.renderGlScene.bind(this, gl, programs));
