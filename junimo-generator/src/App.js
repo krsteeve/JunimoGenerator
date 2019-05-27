@@ -3,17 +3,21 @@ import './App.css';
 import Canvas from './Canvas';
 import { SketchPicker } from 'react-color'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <div>
-          <Canvas/>
-          <SketchPicker />
-        </div>
-      </header>
-    </div>
-  );
-}
+export default class App extends React.Component {
+  state = {
+    color: '#60aa3e'
+  }
 
-export default App;
+  render() {
+    return (
+      <div className="App">
+        <Canvas tintColor={this.state.color}/>
+        <SketchPicker 
+          color = {this.state.color}
+          onChange = {(color, event) => {
+            this.setState({color: color.hex});
+          }}/>
+      </div>
+    );
+  }
+}

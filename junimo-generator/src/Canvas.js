@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
 import raf from 'raf';
 import * as renderer from './Renderer'
-import junimo from './junimo-source.png'
+import junimoOutline from './junimo-outline.png'
+import junimoMain from './junimo-main.png'
+import junimoDark from './junimo-dark.png'
+import junimoLight from './junimo-light.png'
+import junimoCheeks from './junimo-cheeks.png'
 
+var Color = require('color');
  
 export default class Canvas extends Component {
+
+  state = {
+  }
  
   componentDidMount() {
       const canvas = document.querySelector('#glcanvas');
@@ -24,16 +32,39 @@ export default class Canvas extends Component {
         // objects we'll be drawing.
         this.buffers = renderer.initBuffers(gl);
       
-        console.log(junimo);
-        this.texture = renderer.loadTexture(gl, junimo);
+        this.textures = [
+          {texture: renderer.loadTexture(gl, junimoOutline), tint:{r:0, g:0, b:0, a:1}},
+          {texture: renderer.loadTexture(gl, junimoMain), tint:{r:0, g:0, b:0, a:1}},
+          {texture: renderer.loadTexture(gl, junimoDark), tint:{r:0, g:0, b:0, a:1}},
+          {texture: renderer.loadTexture(gl, junimoLight), tint:{r:0, g:0, b:0, a:1}},
+          {texture: renderer.loadTexture(gl, junimoCheeks), tint:{r:215, g:164, b:166, a:1}},
+        ];
+
+        this.updateColors();
       
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
+
+    componentDidUpdate() {
+      this.updateColors();
+    }
+
+    updateColors() {
+      var color = Color(this.props.tintColor);
+
+      this.textures[1].tint = color.object();
+      this.textures[2].tint = color.darken(0.5).rgb().object();
+      this.textures[3].tint = color.lighten(0.5).rgb().object();
+    }
  
     renderGlScene(gl, programs) {
-      
-      renderer.drawScene(gl, this.programInfo, this.buffers, this.texture);
+
+      renderer.drawStart(gl);
+
+      this.textures.forEach(function(texture, index) {
+        renderer.drawScene(gl, this.programInfo, this.buffers, texture.texture, texture.tint);
+      }, this);
 
       this.rafHandle = raf(this.renderGlScene.bind(this, gl, programs));
   }

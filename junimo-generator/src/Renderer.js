@@ -92,9 +92,10 @@ export function getTextureShaderProgram(gl) {
     varying highp vec2 vTextureCoord;
 
     uniform sampler2D uSampler;
+    uniform highp vec4 uTintColor;
 
     void main(void) {
-      gl_FragColor = texture2D(uSampler, vTextureCoord);
+      gl_FragColor = texture2D(uSampler, vTextureCoord) * uTintColor;
     }
   `;
 
@@ -115,6 +116,7 @@ export function getTextureShaderProgram(gl) {
       projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
       modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
       uSampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
+      tintColor: gl.getUniformLocation(shaderProgram, 'uTintColor'),
     },
   };
 }
@@ -174,10 +176,7 @@ function isPowerOf2(value) {
   return (value & (value - 1)) == 0;
 }
 
-//
-// Draw the scene.
-//
-export function drawScene(gl, programInfo, buffers, texture) {
+export function drawStart(gl) {
   gl.clearColor(1.0, 1.0, 1.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -186,7 +185,9 @@ export function drawScene(gl, programInfo, buffers, texture) {
   // Clear the canvas before we start drawing on it.
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+}
 
+export function drawScene(gl, programInfo, buffers, texture, tint) {
   // Create a perspective matrix, a special matrix that is
   // used to simulate the distortion of perspective in a camera.
   // Our field of view is 45 degrees, with a width/height
@@ -270,14 +271,10 @@ export function drawScene(gl, programInfo, buffers, texture) {
 
   // Set the shader uniforms
 
-  gl.uniformMatrix4fv(
-      programInfo.uniformLocations.projectionMatrix,
-      false,
-      projectionMatrix);
-  gl.uniformMatrix4fv(
-      programInfo.uniformLocations.modelViewMatrix,
-      false,
-      modelViewMatrix);
+  gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
+  gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+
+  gl.uniform4f(programInfo.uniformLocations.tintColor, tint.r / 255, tint.g / 255, tint.b / 255, 1);
 
   // Tell WebGL we want to affect texture unit 0
   gl.activeTexture(gl.TEXTURE0);
