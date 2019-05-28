@@ -39,14 +39,27 @@ export function initBuffers(gl) {
 
   const textureCoordinates = [
     // Front
-    0.0,  0.0,
     1.0,  0.0,
-    1.0,  1.0,
+    0.0,  0.0,
     0.0,  1.0,
+    1.0,  1.0,
   ];
 
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates),
                 gl.STATIC_DRAW);
+
+  const tintTextureCoordBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, tintTextureCoordBuffer);
+
+  const tintTextureCoordinates = [
+    // Front
+    1.0,  0.0,
+    0.0,  0.0,
+    0.0,  1.0,
+    1.0,  1.0,
+  ];
+
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(tintTextureCoordinates), gl.DYNAMIC_DRAW);
 
   // Build the element array buffer; this specifies the indices
   // into the vertex arrays for each face's vertices.
@@ -64,8 +77,14 @@ export function initBuffers(gl) {
   return {
     position: positionBuffer,
     textureCoord: textureCoordBuffer,
+    tintTextureCoord: tintTextureCoordBuffer,
     indices: indexBuffer,
   };
+}
+
+export function updateTextureCoordinates(gl, textureCoordBuffer, coordinates) {
+  gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(coordinates), gl.DYNAMIC_DRAW);
 }
 
 export function getTextureShaderProgram(gl) {
@@ -85,6 +104,7 @@ export function getTextureShaderProgram(gl) {
   void main(void) {
     gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
     vTextureCoord = aTextureCoord;
+    vTintTextureCoord = aTintTextureCoord;
   }
   `;
 
@@ -170,7 +190,8 @@ export function getTextureShaderProgram(gl) {
     }
 
     void main(void) {
-      gl_FragColor = texture2D(uSampler, vTextureCoord) * adjustBrightness(uTintColor, uBrightness);
+      gl_FragColor = texture2D(uSampler, vTextureCoord) * 
+        adjustBrightness(uUseTintTexture ? texture2D(uTintSampler, vTintTextureCoord) : uTintColor, uBrightness);
     }
   `;
 
@@ -204,7 +225,7 @@ export function getTextureShaderProgram(gl) {
 // Initialize a texture and load an image.
 // When the image finished loading copy it into the texture.
 //
-export function loadTexture(gl, url, minMagFilter) {
+export function loadTexture(gl, url, minMagFilter, textureCoordBuffer) {
   const texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
 
@@ -244,6 +265,29 @@ export function loadTexture(gl, url, minMagFilter) {
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minMagFilter);
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, minMagFilter);
+    }
+
+    if (textureCoordBuffer != null) {
+      const aspect = image.width / image.height;
+
+      var tintTextureCoordinates;
+      if (aspect < 1.0) {
+        tintTextureCoordinates = [
+          1.0,  0.0,
+          0.0,  0.0,
+          0.0,  aspect,
+          1.0,  aspect,
+        ];
+      } else {
+        tintTextureCoordinates = [
+          1.0 / aspect,  0.0,
+          0.0,  0.0,
+          0.0,  1.0,
+          1.0 / aspect,  1.0,
+        ];
+      }
+
+      updateTextureCoordinates(gl, textureCoordBuffer, tintTextureCoordinates);
     }
   };
   image.src = url;
@@ -341,6 +385,25 @@ export function drawScene(gl, programInfo, buffers, texture, tint, tintTexture, 
         programInfo.attribLocations.textureCoord);
   }
 
+  // Tell WebGL how to pull out the texture coordinates from
+  // the texture coordinate buffer into the textureCoord attribute.
+  if (tintTexture != null) {
+    const numComponents = 2;
+    const type = gl.FLOAT;
+    const normalize = false;
+    const stride = 0;
+    const offset = 0;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.tintTextureCoord);
+    gl.vertexAttribPointer(
+        programInfo.attribLocations.tintTextureCoord,
+        numComponents,
+        type,
+        normalize,
+        stride,
+        offset);
+    gl.enableVertexAttribArray(programInfo.attribLocations.tintTextureCoord);
+  }
+
   // Tell WebGL which indices to use to index the vertices
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
 
@@ -355,15 +418,17 @@ export function drawScene(gl, programInfo, buffers, texture, tint, tintTexture, 
 
   gl.uniform4f(programInfo.uniformLocations.tintColor, tint.r / 255, tint.g / 255, tint.b / 255, 1);
   gl.uniform1f(programInfo.uniformLocations.brightness, brightness);
+  gl.uniform1i(programInfo.uniformLocations.useTintTexture, tintTexture != null);
 
-  // Tell WebGL we want to affect texture unit 0
   gl.activeTexture(gl.TEXTURE0);
-
-  // Bind the texture to texture unit 0
   gl.bindTexture(gl.TEXTURE_2D, texture);
-
-  // Tell the shader we bound the texture to texture unit 0
   gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
+
+  if (tintTexture != null) {
+    gl.activeTexture(gl.TEXTURE0 + 1);
+    gl.bindTexture(gl.TEXTURE_2D, tintTexture);
+    gl.uniform1i(programInfo.uniformLocations.uTintSampler, 1);
+  }
 
   {
     const offset = 0;

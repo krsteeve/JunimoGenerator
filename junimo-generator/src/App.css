@@ -6,6 +6,10 @@
   pointer-events: none;
 }
 
+.Top {
+  background-color: #282c34;
+}
+
 .App {
   background-color: #282c34;
   display: flex;
@@ -14,6 +18,10 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+
+.ImageSettings {
+  font-size: calc(6px + 2vmin);
 }
 
 .App-link {

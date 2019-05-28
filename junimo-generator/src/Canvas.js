@@ -33,11 +33,33 @@ export default class Canvas extends Component {
         this.buffers = renderer.initBuffers(gl);
       
         this.textures = [
-          {texture: renderer.loadTexture(gl, junimoOutline, gl.NEAREST), tint:{r:0, g:0, b:0, a:1}, brightness:0},
-          {texture: renderer.loadTexture(gl, junimoMain, gl.NEAREST), tint:{r:0, g:0, b:0, a:1}, brightness:0},
-          {texture: renderer.loadTexture(gl, junimoDark, gl.NEAREST), tint:{r:0, g:0, b:0, a:1}, brightness:-0.5},
-          {texture: renderer.loadTexture(gl, junimoLight, gl.NEAREST), tint:{r:0, g:0, b:0, a:1}, brightness:0.5},
-          {texture: renderer.loadTexture(gl, junimoCheeks, gl.NEAREST), tint:{r:215, g:164, b:166, a:1}, brightness:0},
+          { 
+            texture: renderer.loadTexture(gl, junimoOutline, gl.NEAREST), 
+            tint:{r:0, g:0, b:0, a:1}, 
+            tintTexture: null,
+            brightness:0
+          },
+          {
+            texture: renderer.loadTexture(gl, junimoMain, gl.NEAREST), 
+            tint:{r:0, g:0, b:0, a:1}, 
+            tintTexture: null,
+            brightness:0
+          },
+          {texture: renderer.loadTexture(gl, junimoDark, gl.NEAREST), 
+            tint:{r:0, g:0, b:0, a:1}, 
+            tintTexture: null,
+            brightness:-0.5
+          },
+          {texture: renderer.loadTexture(gl, junimoLight, gl.NEAREST), 
+            tint:{r:0, g:0, b:0, a:1}, 
+            tintTexture: null,
+            brightness:0.5
+          },
+          {texture: renderer.loadTexture(gl, junimoCheeks, gl.NEAREST), 
+            tint:{r:215, g:164, b:166, a:1}, 
+            tintTexture: null,
+            brightness:0
+          },
         ];
 
         this.updateColors();
@@ -46,8 +68,12 @@ export default class Canvas extends Component {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(oldProps) {
       this.updateColors();
+
+      if (oldProps.tintTexture != this.props.tintTexture) {
+        this.updateTexture();
+      }
     }
 
     updateColors() {
@@ -56,6 +82,27 @@ export default class Canvas extends Component {
       this.textures[1].tint = color.object();
       this.textures[2].tint = color.object();
       this.textures[3].tint = color.object();
+
+      this.textures[1].brightness = this.props.normalnessRatio;
+      this.textures[2].brightness = this.props.darknessRatio;
+      this.textures[3].brightness = this.props.brightnessRatio;
+    }
+
+    updateTexture() {
+      var tintTexture = this.props.tintTexture;
+      if (tintTexture != null) {
+        const canvas = document.querySelector('#glcanvas');
+        const gl = canvas.getContext('webgl');
+
+        var texture = renderer.loadTexture(gl, tintTexture, gl.LINEAR, this.buffers.tintTextureCoord);
+        this.textures[1].tintTexture = texture;
+        this.textures[2].tintTexture = texture;
+        this.textures[3].tintTexture = texture;
+      } else {
+        this.textures[1].tintTexture = null;
+        this.textures[2].tintTexture = null;
+        this.textures[3].tintTexture = null;
+      }
     }
  
     renderGlScene(gl, programs) {
@@ -63,7 +110,7 @@ export default class Canvas extends Component {
       renderer.drawStart(gl);
 
       this.textures.forEach(function(texture, index) {
-        renderer.drawScene(gl, this.programInfo, this.buffers, texture.texture, texture.tint, null, texture.brightness);
+        renderer.drawScene(gl, this.programInfo, this.buffers, texture.texture, texture.tint, texture.tintTexture, texture.brightness);
       }, this);
 
       this.rafHandle = raf(this.renderGlScene.bind(this, gl, programs));
