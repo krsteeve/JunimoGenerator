@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/JunimoGenerator/static/css/main.5c233135.chunk.css",
+    "main.js": "/JunimoGenerator/static/js/main.0ea6534e.chunk.js",
+    "main.js.map": "/JunimoGenerator/static/js/main.0ea6534e.chunk.js.map",
+    "runtime~main.js": "/JunimoGenerator/static/js/runtime~main.a833dd79.js",
+    "runtime~main.js.map": "/JunimoGenerator/static/js/runtime~main.a833dd79.js.map",
+    "static/css/2.e264405f.chunk.css": "/JunimoGenerator/static/css/2.e264405f.chunk.css",
+    "static/js/2.f986eb47.chunk.js": "/JunimoGenerator/static/js/2.f986eb47.chunk.js",
+    "static/js/2.f986eb47.chunk.js.map": "/JunimoGenerator/static/js/2.f986eb47.chunk.js.map",
+    "index.html": "/JunimoGenerator/index.html",
+    "precache-manifest.ef063d8fa1f607a6b0166faf719d668a.js": "/JunimoGenerator/precache-manifest.ef063d8fa1f607a6b0166faf719d668a.js",
+    "service-worker.js": "/JunimoGenerator/service-worker.js",
+    "static/css/2.e264405f.chunk.css.map": "/JunimoGenerator/static/css/2.e264405f.chunk.css.map",
+    "static/css/main.5c233135.chunk.css.map": "/JunimoGenerator/static/css/main.5c233135.chunk.css.map",
+    "static/media/art-artistic-background-1851447.jpg": "/JunimoGenerator/static/media/art-artistic-background-1851447.75c01ef7.jpg",
+    "static/media/art-beautiful-bloom-1037994.jpg": "/JunimoGenerator/static/media/art-beautiful-bloom-1037994.3bc89dfe.jpg",
+    "static/media/background-beautiful-beauty-2033997.jpg": "/JunimoGenerator/static/media/background-beautiful-beauty-2033997.2e6af9f8.jpg",
+    "static/media/background-beautiful-bloom-414667.jpg": "/JunimoGenerator/static/media/background-beautiful-bloom-414667.adec247b.jpg",
+    "static/media/background-biology-blue-1426718.jpg": "/JunimoGenerator/static/media/background-biology-blue-1426718.189cadda.jpg",
+    "static/media/blur-bright-color-751374.jpg": "/JunimoGenerator/static/media/blur-bright-color-751374.1ac2b713.jpg",
+    "static/media/index.css": "/JunimoGenerator/static/media/checkbcd1a436590360ed53ac2f46c76e43e4.bcd1a436.png",
+    "static/media/color-conifer-daylight-1179229.jpg": "/JunimoGenerator/static/media/color-conifer-daylight-1179229.4c22bdfb.jpg"
+  }
+}
