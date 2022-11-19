@@ -12,7 +12,7 @@
     "react-dom": "^16.8.6",
     "react-image-picker": "^1.1.1",
     "react-input-slider": "^5.0.15",
-    "react-scripts": "3.0.1",
+    "react-scripts": "5.0.1",
     "webgl-canvas": "^1.0.1"
   },
   "scripts": {
